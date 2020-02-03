@@ -42,7 +42,6 @@
 
                 <?php
                   if(is_array($all_selected_filters) && count($all_selected_filters)) {
-                    //$all_selected_filters = array_unique($all_selected_filters ); // remove same key
                     foreach ($all_selected_filters as $filter_key) {
                       ?>
                       <li uk-filter-control="[data-tag='<?php echo $filter_key ?>']"><a href="#"><?php echo $filter_key; ?></a></li>
