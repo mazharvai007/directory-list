@@ -1,6 +1,6 @@
 <?php
 
-function scanAllDir($dir) {
+function getFiles($dir) {
     $result = [];
 
     $exclude = array('.svn', 'CVS','.DS_Store','__MACOSX', '_thumbs');
@@ -17,7 +17,7 @@ function scanAllDir($dir) {
         {
             $filePath = $dir . '/' . $filename;     
             if (is_dir($filePath)) {
-                foreach (scanAllDir($filePath) as $childFilename) {
+                foreach (getFiles($filePath) as $childFilename) {
                     $result[] = $filename . '/' . $childFilename;
             }
             } else {
@@ -28,65 +28,35 @@ function scanAllDir($dir) {
     return $result;
 }
 
-function tagFilter($path) {
-    
-    $classTag = '';
-    foreach ($path as $key => $value) {
-        $filesArray = explode('/', $value);
-        foreach ($filesArray as $key => $item) {
-            if ($key != count($filesArray) - 1) {
-                $classTag .= ' .' . $item;
-            }
-        }
-    }
-    return $classTag;
-}
+// function listDirs($dir) {
+//     static $alldirs = array();
+// 	$dirs = glob($dir . '/*', GLOB_ONLYDIR);
 
-function tagsFiltering($dir, $allData=array()) {
+//     if (count($dirs) > 0) {
+//         foreach ($dirs as $d) {
+// 			$findFolder = explode('/', $d);
+// 			$getFolder = '';
+// 			foreach($findFolder as $key => $value) {
+// 				if ($value == '_thumbs' && $findFolder[0]) {
+// 					continue;
+// 				} else {
+// 					$getFolder = $value;
+// 				}
+// 			}			
+// 			$alldirs[] = $getFolder;
+// 		}
+//     }
+//     foreach ($dirs as $dir) {
+// 		listDirs($dir);
+// 	}
 
-    $invisibleFileNames = array(".", "..", "_thumbs");
-
-    $dirContent = scandir($dir);
-    foreach($dirContent as $key => $content) {
-
-        $path = $dir.'/'.$content;
-        if(!in_array($content, $invisibleFileNames)) {
-
-            if(is_file($path) && is_readable($path)) {
-                $filearray = explode('/', $path);
-                $classTag = '';
-                foreach($filearray as $key=>$item){
-                    if($key != count($filearray)-1){
-                        $classTag .=' ' . $item;
-                    }
-                }
-                $allData[] = $classTag;
-                // $allData[] = $path;
-
-            }elseif(is_dir($path) && is_readable($path)) {
-                $allData = tagsFiltering($path, $allData);
-            }
-        }
-    }
-    return $allData;
-}
+//     return $alldirs;
+// }
 
 
-function folders($path, $filter = '.', $recurse = false, $full = false, $exclude = array('.svn', 'CVS', '.DS_Store', '__MACOSX'),
+function folders($path, $filter = '.', $recurse = true, $full = false, $exclude = array('.svn', 'CVS', '.DS_Store', '__MACOSX', '_thumbs'),
 		$excludefilter = array('^\..*'))
 	{
-		// Check to make sure the path valid and clean
-		// $pathObject = new PathWrapper;
-		// $path = $pathObject->clean($path);
-
-		// Is the path a folder?
-		// if (!is_dir($path))
-		// {
-		// 	Log::add(Text::sprintf('JLIB_FILESYSTEM_ERROR_PATH_IS_NOT_A_FOLDER_FOLDER', $path), Log::WARNING, 'jerror');
-
-		// 	return false;
-		// }
-
 		// Compute the excludefilter string
 		if (count($excludefilter))
 		{
@@ -98,7 +68,7 @@ function folders($path, $filter = '.', $recurse = false, $full = false, $exclude
 		}
 
 		// Get the folders
-		$arr = _items($path, $filter, $recurse, $full, $exclude, $excludefilter_string, false);
+		$arr = items($path, $filter, $recurse, $full, $exclude, $excludefilter_string, false);
 
 		// Sort the folders
 		asort($arr);
@@ -106,9 +76,8 @@ function folders($path, $filter = '.', $recurse = false, $full = false, $exclude
 		return array_values($arr);
     }
     
-    function _items($path, $filter, $recurse, $full, $exclude, $excludefilter_string, $findfiles)
+    function items($path, $filter, $recurse, $full, $exclude, $excludefilter_string, $findfiles)
 	{
-		@set_time_limit(ini_get('max_execution_time'));
 
 		$arr = array();
 
@@ -121,7 +90,7 @@ function folders($path, $filter = '.', $recurse = false, $full = false, $exclude
 		while (($file = readdir($handle)) !== false)
 		{
 			if ($file != '.' && $file != '..' && !in_array($file, $exclude)
-				&& (empty($excludefilter_string) || !preg_match($excludefilter_string, $file)))
+			&& (empty($excludefilter_string) || !preg_match($excludefilter_string, $file)))
 			{
 				// Compute the fullpath
 				$fullpath = $path . '/' . $file;
@@ -150,11 +119,11 @@ function folders($path, $filter = '.', $recurse = false, $full = false, $exclude
 					if (is_int($recurse))
 					{
 						// Until depth 0 is reached
-						$arr = array_merge($arr, _items($fullpath, $filter, $recurse - 1, $full, $exclude, $excludefilter_string, $findfiles));
+						$arr = array_merge($arr, items($fullpath, $filter, $recurse - 1, $full, $exclude, $excludefilter_string, $findfiles));
 					}
 					else
 					{
-						$arr = array_merge($arr, _items($fullpath, $filter, $recurse, $full, $exclude, $excludefilter_string, $findfiles));
+						$arr = array_merge($arr, items($fullpath, $filter, $recurse, $full, $exclude, $excludefilter_string, $findfiles));
 					}
 				}
 			}
