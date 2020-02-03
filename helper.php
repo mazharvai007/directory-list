@@ -24,6 +24,19 @@ function getFiles($dir) {
     return $result;
 }
 
+function getDirectories($dir)
+{
+	$items = glob($dir . '/*', GLOB_ONLYDIR);
+
+		foreach ($items as $dir) {
+			getDirectories($dir);
+		}
+
+	var_dump($items);
+
+    return $items;
+}
+
 
 function folders($path, $filter = '.', $recurse = true, $full = false, $exclude = array('.svn', 'CVS', '.DS_Store', '__MACOSX', '_thumbs'),
 		$excludefilter = array('^\..*'))

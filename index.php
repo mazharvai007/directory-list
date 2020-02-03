@@ -7,7 +7,6 @@
 
   $folder = folders("images");
 
-
   $all_selected_filters = array();
 	foreach ($folder as $filters_key => $filters_value) {
     $filterArray = explode(',', $filters_value);
@@ -15,7 +14,8 @@
       $all_selected_filters = array_merge($all_selected_filters, $filterArray);
     }    
   }
-  
+
+  getDirectories('images');
 
 ?>
 
